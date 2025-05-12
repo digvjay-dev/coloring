@@ -3,14 +3,12 @@ import { View, StyleSheet, useColorScheme } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import SVGCanvas from './SVGCanvas';
 import ColorPalette from './ColorPalette';
-import ToolPanel from './ToolPanel';
 import DrawingHeader from './DrawingHeader';
 import { useDrawing } from '@/context/DrawingContext';
 
 const ColoringBoard = () => {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
-  const { currentTool } = useDrawing();
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
@@ -22,10 +20,7 @@ const ColoringBoard = () => {
         <View style={styles.canvasContainer}>
           <SVGCanvas />
         </View>
-        <View style={styles.toolsContainer}>
-          <ToolPanel />
-          <ColorPalette />
-        </View>
+        <ColorPalette />
       </View>
     </GestureHandlerRootView>
   );
@@ -50,9 +45,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 3.84,
     elevation: 5,
-  },
-  toolsContainer: {
-    padding: 8,
   },
 });
 

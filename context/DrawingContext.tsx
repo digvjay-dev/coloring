@@ -23,7 +23,6 @@ const defaultColorPalette: ColorPaletteItem[] = [
   { color: '#6366f1', name: 'Indigo' },
 ];
 
-// Create context with default values
 export const DrawingContext = createContext<DrawingContextType>({
   paths: [],
   selectedColor: '#000000',
@@ -33,6 +32,7 @@ export const DrawingContext = createContext<DrawingContextType>({
   colorPalette: defaultColorPalette,
   undoStack: [],
   redoStack: [],
+  showGrid: false,
   startDrawing: () => {},
   continueDrawing: () => {},
   finishDrawing: () => {},
@@ -44,6 +44,7 @@ export const DrawingContext = createContext<DrawingContextType>({
   clearCanvas: () => {},
   undo: () => {},
   redo: () => {},
+  setShowGrid: () => {},
   isDrawing: false,
 });
 
@@ -57,13 +58,13 @@ export const DrawingProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [undoStack, setUndoStack] = useState<DrawingPath[][]>([]);
   const [redoStack, setRedoStack] = useState<DrawingPath[][]>([]);
   const [isDrawing, setIsDrawing] = useState<boolean>(false);
+  const [showGrid, setShowGrid] = useState<boolean>(false);
   
   const currentPathRef = useRef<DrawingPath | null>(null);
 
   const startDrawing = (x: number, y: number) => {
     setIsDrawing(true);
     
-    // Create a new path
     const newPath: DrawingPath = {
       points: [{ x, y }],
       color: currentTool === 'eraser' ? '#ffffff' : selectedColor,
@@ -73,18 +74,13 @@ export const DrawingProvider: React.FC<{ children: React.ReactNode }> = ({ child
     };
     
     currentPathRef.current = newPath;
-    
-    // Add the new path to paths
     setPaths(prevPaths => [...prevPaths, newPath]);
-    
-    // Clear redo stack when a new drawing action starts
     setRedoStack([]);
   };
 
   const continueDrawing = (x: number, y: number) => {
     if (!isDrawing || !currentPathRef.current) return;
     
-    // Update the current path with new point
     const updatedPath = {
       ...currentPathRef.current,
       points: [...currentPathRef.current.points, { x, y }],
@@ -92,7 +88,6 @@ export const DrawingProvider: React.FC<{ children: React.ReactNode }> = ({ child
     
     currentPathRef.current = updatedPath;
     
-    // Update the paths array with the updated path
     setPaths(prevPaths => {
       const newPaths = [...prevPaths];
       newPaths[newPaths.length - 1] = updatedPath;
@@ -101,7 +96,6 @@ export const DrawingProvider: React.FC<{ children: React.ReactNode }> = ({ child
   };
 
   const finishDrawing = () => {
-    // Save the current state to undo stack
     if (isDrawing) {
       setUndoStack(prevStack => [...prevStack, [...paths]]);
     }
@@ -111,7 +105,6 @@ export const DrawingProvider: React.FC<{ children: React.ReactNode }> = ({ child
   };
 
   const addCustomColor = (color: string, name: string = '') => {
-    // Add a new color to the palette
     const newColor: ColorPaletteItem = { 
       color, 
       name: name || color 
@@ -121,7 +114,6 @@ export const DrawingProvider: React.FC<{ children: React.ReactNode }> = ({ child
   };
 
   const clearCanvas = () => {
-    // Save current state to undo stack before clearing
     if (paths.length > 0) {
       setUndoStack(prevStack => [...prevStack, [...paths]]);
     }
@@ -133,32 +125,18 @@ export const DrawingProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const undo = () => {
     if (undoStack.length === 0) return;
     
-    // Get the last state from undo stack
     const lastState = undoStack[undoStack.length - 1];
-    
-    // Save current state to redo stack
     setRedoStack(prevStack => [...prevStack, [...paths]]);
-    
-    // Set paths to the last state
     setPaths(lastState);
-    
-    // Remove the last state from undo stack
     setUndoStack(prevStack => prevStack.slice(0, -1));
   };
 
   const redo = () => {
     if (redoStack.length === 0) return;
     
-    // Get the last state from redo stack
     const lastState = redoStack[redoStack.length - 1];
-    
-    // Save current state to undo stack
     setUndoStack(prevStack => [...prevStack, [...paths]]);
-    
-    // Set paths to the last state
     setPaths(lastState);
-    
-    // Remove the last state from redo stack
     setRedoStack(prevStack => prevStack.slice(0, -1));
   };
 
@@ -172,6 +150,7 @@ export const DrawingProvider: React.FC<{ children: React.ReactNode }> = ({ child
     undoStack,
     redoStack,
     isDrawing,
+    showGrid,
     startDrawing,
     continueDrawing,
     finishDrawing,
@@ -183,6 +162,7 @@ export const DrawingProvider: React.FC<{ children: React.ReactNode }> = ({ child
     clearCanvas,
     undo,
     redo,
+    setShowGrid,
   };
 
   return (

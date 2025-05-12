@@ -30,6 +30,7 @@ export interface DrawingContextType {
   undoStack: DrawingPath[][];
   redoStack: DrawingPath[][];
   isDrawing: boolean;
+  showGrid: boolean;
   startDrawing: (x: number, y: number) => void;
   continueDrawing: (x: number, y: number) => void;
   finishDrawing: () => void;
@@ -41,4 +42,5 @@ export interface DrawingContextType {
   clearCanvas: () => void;
   undo: () => void;
   redo: () => void;
+  setShowGrid: (show: boolean) => void;
 }
